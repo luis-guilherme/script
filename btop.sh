@@ -9,7 +9,7 @@
 # File name: btop.sh
 # Description: Install latest version btop
 # System Required: GNU/Linux
-# Version: 1.0
+# Version: 1.1 - add dinamic version number and new file naming
 #
 
 set -o errexit
@@ -27,6 +27,7 @@ ERROR="[${Red_font_prefix}ERROR${Font_color_suffix}]"
 PROJECT_NAME='btop'
 GH_API_URL='https://api.github.com/repos/aristocratos/btop/releases/latest'
 BIN_NAME='btop'
+BIN_VERSION="",
 BIN_DIR='/usr/local/bin'
 BIN_FILE="${BIN_DIR}/${BIN_NAME}"
 
@@ -40,6 +41,9 @@ if [[ $(id -u) != 0 ]]; then
     exit 1
 fi
 
+echo -e "Get ${PROJECT_NAME} version number ..."
+FILE_VERSION=$(curl -fsSL ${GH_API_URL} | grep 'tag_name' | cut -d'"' -f4 | sed 's/v/-/g')
+
 echo -e "${INFO} Get CPU architecture ..."
 if [[ $(command -v apk) ]]; then
     PKGT='(apk)'
@@ -52,16 +56,16 @@ else
 fi
 case ${OS_ARCH} in
 *86)
-    FILE_KEYWORD='linux-i686.tbz'
+    FILE_KEYWORD="${BIN_NAME}${FILE_VERSION}-i686-linux-musl.tbz"
     ;;
 x86_64 | amd64)
-    FILE_KEYWORD='linux-x86_64.tbz'
+    FILE_KEYWORD="${BIN_NAME}${FILE_VERSION}-x86_64-linux-musl.tbz"
     ;;
 aarch64 | arm64)
-    FILE_KEYWORD='linux-aarch64.tbz'
+    FILE_KEYWORD="${BIN_NAME}${FILE_VERSION}-aarch64-linux-musl.tbz"
     ;;
 arm*)
-    FILE_KEYWORD='linux-armhf.tbz'
+    FILE_KEYWORD="${BIN_NAME}${FILE_VERSION}-armhf-linux-musl.tbz"
     ;;
 *)
     echo -e "${ERROR} Unsupported architecture: ${OS_ARCH} ${PKGT}"
